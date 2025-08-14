@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>精准八字计算器 - 全面修正版</title>
+    <title>精准八字计算器 - 日期选择修复版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -475,9 +475,9 @@
 <div class="container">
     <header>
         <h1><i class="fas fa-dragon"></i> 精准八字计算器</h1>
-        <p class="subtitle">全面算法修正版 - 确保四柱准确性</p>
+        <p class="subtitle">日期选择修复版 - 确保完整功能</p>
         <div class="accuracy-badge">
-            <i class="fas fa-check-circle"></i> 算法全面修正
+            <i class="fas fa-check-circle"></i> 日期选择已修复
         </div>
     </header>
     
@@ -548,7 +548,7 @@
     <div class="loader" id="loader">
         <i class="fas fa-spinner"></i>
         <h3>正在精准计算八字信息...</h3>
-        <p id="api-status-text">使用全面修正算法计算中</p>
+        <p id="api-status-text">本地算法计算中</p>
     </div>
     
     <div class="result-section" id="result-section">
@@ -660,14 +660,14 @@
                 <p><i class="fas fa-calculator"></i> <strong>计算日期：</strong> <span id="calc-date">1984年8月22日</span></p>
                 <p><i class="fas fa-clock"></i> <strong>出生时辰：</strong> <span id="solar-time">未时 (13:00-14:59)</span></p>
                 <p><i class="fas fa-cloud-sun"></i> <strong>节气信息：</strong> <span id="term-info">立秋 (1984年8月7日)</span></p>
-                <p><i class="fas fa-code"></i> <strong>算法版本：</strong> <span id="algorithm-version">v3.0 全面修正版</span></p>
+                <p><i class="fas fa-code"></i> <strong>算法版本：</strong> <span id="algorithm-version">v3.1 日期修复版</span></p>
             </div>
         </div>
     </div>
     
     <footer>
         <p><i class="fas fa-exclamation-circle"></i> 注：本计算器使用全面修正算法，确保四柱计算准确性，结果仅供参考</p>
-        <p>© 2023 精准八字计算器 | 全面修正版</p>
+        <p>© 2023 精准八字计算器 | 日期选择修复版</p>
     </footer>
 </div>
 
@@ -690,11 +690,15 @@ function initDayOptions() {
     const daySelect = document.getElementById('day');
     daySelect.innerHTML = '';
     
+    // 生成1-31日的选项
     for (let i = 1; i <= 31; i++) {
         const option = document.createElement('option');
         option.value = i;
         option.textContent = i + '日';
-        if (i === 22) option.selected = true;
+        // 默认选中22日
+        if (i === 22) {
+            option.selected = true;
+        }
         daySelect.appendChild(option);
     }
 }
@@ -811,7 +815,7 @@ function getDayGanzhi(year, month, day) {
     const yy = y % 100;
     
     // 蔡勒公式计算星期
-    let h = (day + Math.floor(13*(m+1)/5) + yy + Math.floor(yy/4) + Math.floor(c/4) - 2*c;
+    let h = (day + Math.floor(13*(m+1)/5) + yy + Math.floor(yy/4) + Math.floor(c/4) - 2*c);
     h = (h % 7 + 7) % 7; // 星期几（0=周六,1=周日,...,6=周五）
     
     // 计算日干支（1900年1月1日为甲戌日，序号11）
@@ -950,6 +954,7 @@ function getHourRange(hourIndex) {
 
 // 初始化页面
 window.onload = function() {
+    // 初始化日期选项
     initDayOptions();
     
     // 设置示例日期
@@ -959,7 +964,7 @@ window.onload = function() {
     document.getElementById('hour').value = 7;
     
     // 设置算法版本
-    document.getElementById('algorithm-version').textContent = "v3.0 全面修正版";
+    document.getElementById('algorithm-version').textContent = "v3.1 日期修复版";
     
     // 显示结果区域
     document.getElementById('result-section').style.display = 'block';
