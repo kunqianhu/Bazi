@@ -9,7 +9,7 @@
     h1 { text-align: center; color: #8b0000; }
     .input-section { background: #fffaf0; border: 1px solid #ddd; padding: 15px; border-radius: 8px; max-width: 400px; margin: auto; }
     label { display: block; margin-top: 10px; }
-    select, input { width: 100%; padding: 5px; margin-top: 5px; }
+    select { width: 100%; padding: 5px; margin-top: 5px; }
     button { width: 100%; margin-top: 15px; padding: 10px; background: #b8860b; color: white; border: none; font-size: 16px; cursor: pointer; border-radius: 5px; }
     button:hover { background: #daa520; }
     .result { margin-top: 20px; text-align: center; }
@@ -34,13 +34,21 @@ const wuxingColor = {
     "庚":"metal","辛":"metal","申":"metal","酉":"metal",
     "壬":"water","癸":"water","子":"water","亥":"water"
 };
-// 节气表（示例，仅含立春；完整需补齐24节气）
-// 这里只做演示，1900-2100年的节气可查表导入
-const liChunDates = {
-    1984: {month:2, day:4},
-    1985: {month:2, day:4},
-    2024: {month:2, day:4}
-};
+// 八字时辰表
+const hourList = [
+    {label:"23:00-0:59 子时", start:23, end:0, index:0},
+    {label:"1:00-2:59 丑时", start:1, end:2, index:1},
+    {label:"3:00-4:59 寅时", start:3, end:4, index:2},
+    {label:"5:00-6:59 卯时", start:5, end:6, index:3},
+    {label:"7:00-8:59 辰时", start:7, end:8, index:4},
+    {label:"9:00-10:59 巳时", start:9, end:10, index:5},
+    {label:"11:00-12:59 午时", start:11, end:12, index:6},
+    {label:"13:00-14:59 未时", start:13, end:14, index:7},
+    {label:"15:00-16:59 申时", start:15, end:16, index:8},
+    {label:"17:00-18:59 酉时", start:17, end:18, index:9},
+    {label:"19:00-20:59 戌时", start:19, end:20, index:10},
+    {label:"21:00-22:59 亥时", start:21, end:22, index:11}
+];
 
 // 计算干支序号（0-59）
 function getGanZhiIndex(year, month, day) {
@@ -51,28 +59,30 @@ function getGanZhiIndex(year, month, day) {
 }
 
 // 公历 → 四柱
-function calcBazi(y, m, d, h) {
-    // 年柱
-    let lichun = liChunDates[y] || {month:2, day:4};
-    let useYear = (m > lichun.month || (m === lichun.month && d >= lichun.day)) ? y : y - 1;
-    let yearIndex = (useYear - 1984 + 60) % 60;
+function calcBazi(y, m, d, hourObj) {
+    let dayIndex = getGanZhiIndex(y, m, d);
+
+    // 子时跨日处理
+    if(hourObj.start === 23){
+        dayIndex += 1;
+    }
+
+    // 年柱（简化版，不加节气判断）
+    let yearIndex = (y - 1984 + 60) % 60;
     let yearGan = gan[yearIndex % 10];
     let yearZhi = zhi[yearIndex % 12];
 
-    // 月柱（简化版，以立春为起点）
-    let monthIndex = ((yearIndex % 5) * 12 + m + 1) % 60; // 简化
+    // 月柱（简化版）
     let monthGan = gan[(yearIndex*2 + m) % 10];
     let monthZhi = zhi[(m+1) % 12];
 
     // 日柱
-    let dayIndex = getGanZhiIndex(y, m, d);
     let dayGan = gan[dayIndex % 10];
     let dayZhi = zhi[dayIndex % 12];
 
     // 时柱
-    let hourZhiIndex = Math.floor((h + 1) / 2) % 12;
-    let hourZhi = zhi[hourZhiIndex];
-    let hourGan = gan[(dayIndex*2 + hourZhiIndex) % 10];
+    let hourGan = gan[(dayIndex*2 + hourObj.index) % 10];
+    let hourZhi = zhi[hourObj.index];
 
     return [
         [yearGan, yearZhi],
@@ -86,9 +96,11 @@ function showBazi() {
     let y = parseInt(document.getElementById("year").value);
     let m = parseInt(document.getElementById("month").value);
     let d = parseInt(document.getElementById("day").value);
-    let h = parseInt(document.getElementById("hour").value);
+    let hIndex = parseInt(document.getElementById("hour").value);
+    let hourObj = hourList[hIndex];
 
-    let bazi = calcBazi(y, m, d, h);
+    let bazi = calcBazi(y, m, d, hourObj);
+
     let html = "<tr>";
     bazi.forEach(pillar => {
         pillar.forEach(char => {
@@ -99,6 +111,32 @@ function showBazi() {
     document.getElementById("result-table").innerHTML = html;
     document.getElementById("result-section").style.display = "block";
 }
+
+// 页面加载生成下拉选项
+window.onload = function(){
+    let monthSelect = document.getElementById("month");
+    let daySelect = document.getElementById("day");
+    let hourSelect = document.getElementById("hour");
+
+    for(let i=1;i<=12;i++){
+        let opt = document.createElement("option");
+        opt.value = i;
+        opt.text = i;
+        monthSelect.appendChild(opt);
+    }
+    for(let i=1;i<=31;i++){
+        let opt = document.createElement("option");
+        opt.value = i;
+        opt.text = i;
+        daySelect.appendChild(opt);
+    }
+    hourList.forEach((h,i)=>{
+        let opt = document.createElement("option");
+        opt.value = i;
+        opt.text = h.label;
+        hourSelect.appendChild(opt);
+    });
+}
 </script>
 </head>
 <body>
@@ -108,17 +146,11 @@ function showBazi() {
     <label>年：</label>
     <input type="number" id="year" placeholder="例如：1984" value="1984">
     <label>月：</label>
-    <select id="month">
-        ${[...Array(12)].map((_,i)=>`<option value="${i+1}">${i+1}</option>`).join("")}
-    </select>
+    <select id="month"></select>
     <label>日：</label>
-    <select id="day">
-        ${[...Array(31)].map((_,i)=>`<option value="${i+1}">${i+1}</option>`).join("")}
-    </select>
-    <label>时（24小时制）：</label>
-    <select id="hour">
-        ${[...Array(24)].map((_,i)=>`<option value="${i}">${i}</option>`).join("")}
-    </select>
+    <select id="day"></select>
+    <label>时辰：</label>
+    <select id="hour"></select>
     <button onclick="showBazi()">生成八字</button>
 </div>
 
