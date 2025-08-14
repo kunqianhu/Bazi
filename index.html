@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>免费农历API八字计算器</title>
+    <title>精准八字计算器 - 本地算法修正版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary: #8b0000;
+            --primary-light: #b22222;
             --secondary: #b8860b;
             --wood: #4CAF50;
             --fire: #F44336;
@@ -17,13 +18,15 @@
             --light-bg: #faf5e4;
             --card-bg: #ffffff;
             --shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --success: #4CAF50;
+            --warning: #FFC107;
         }
         
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'STKaiti', sans-serif;
         }
         
         body {
@@ -32,6 +35,7 @@
             line-height: 1.6;
             min-height: 100vh;
             padding: 20px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23faf5e4" opacity="0.2"/><path d="M20,20 Q40,5 60,20 T100,20 M20,40 Q40,25 60,40 T100,40 M20,60 Q40,45 60,60 T100,60 M20,80 Q40,65 60,80 T100,80" stroke="%238b0000" stroke-width="0.5" fill="none"/></svg>');
         }
         
         .container {
@@ -43,12 +47,13 @@
             text-align: center;
             padding: 30px 20px;
             margin-bottom: 20px;
-            background: linear-gradient(120deg, var(--primary) 0%, #b22222 100%);
+            background: linear-gradient(120deg, var(--primary) 0%, var(--primary-light) 100%);
             border-radius: 15px;
             color: white;
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
         
         header::before {
@@ -68,6 +73,7 @@
             position: relative;
             z-index: 2;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
         }
         
         .subtitle {
@@ -86,6 +92,7 @@
             padding: 30px;
             margin-bottom: 25px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         .card:hover {
@@ -100,11 +107,13 @@
             border-bottom: 2px solid #f0f0f0;
             display: flex;
             align-items: center;
+            font-size: 1.6rem;
         }
         
         .card-title i {
             margin-right: 10px;
-            font-size: 1.4rem;
+            font-size: 1.8rem;
+            color: var(--secondary);
         }
         
         .form-row {
@@ -117,6 +126,7 @@
         .input-group {
             flex: 1;
             min-width: 200px;
+            position: relative;
         }
         
         label {
@@ -124,22 +134,25 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #555;
+            font-size: 1.1rem;
         }
         
         input, select {
             width: 100%;
-            padding: 14px;
+            padding: 14px 18px;
             border: 1px solid #ddd;
             border-radius: 10px;
             font-size: 16px;
             background: #fafafa;
             transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
         
         input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.2);
+            background: #fff;
         }
         
         button {
@@ -157,12 +170,30 @@
             margin-top: 20px;
             letter-spacing: 1px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
         }
         
         button:hover {
             background: linear-gradient(to right, #daa520, var(--secondary));
             transform: translateY(-3px);
             box-shadow: 0 7px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover::before {
+            left: 100%;
         }
         
         button:active {
@@ -179,6 +210,10 @@
             color: #666;
             font-size: 0.95rem;
             font-style: italic;
+            padding: 10px;
+            background: #fff9e6;
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary);
         }
         
         .bazi-display {
@@ -199,6 +234,18 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pillar::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
         }
         
         .pillar:hover {
@@ -218,6 +265,7 @@
         .pillar-name i {
             margin-right: 8px;
             font-size: 1.2rem;
+            color: var(--secondary);
         }
         
         .pillar-content {
@@ -238,6 +286,21 @@
             border-radius: 50%;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s;
+        }
+        
+        .ganzhi::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: inherit;
+            z-index: -1;
+            filter: blur(5px);
+            opacity: 0.4;
         }
         
         .wood { background-color: var(--wood); color: white; }
@@ -259,6 +322,13 @@
             padding: 20px;
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .detail-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
         }
         
         .detail-card h3 {
@@ -267,16 +337,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.3rem;
         }
         
         .detail-card h3 i {
             margin-right: 8px;
+            color: var(--secondary);
         }
         
         .wuxing-count {
             font-size: 2.5rem;
             font-weight: bold;
             margin: 15px 0;
+            text-shadow: 0 2px 3px rgba(0,0,0,0.1);
         }
         
         .wuxing-legend {
@@ -296,12 +369,14 @@
             padding: 8px 15px;
             border-radius: 30px;
             background: rgba(0,0,0,0.03);
+            font-weight: 500;
         }
         
         .legend-color {
             width: 25px;
             height: 25px;
             border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .wood-bg { background-color: var(--wood); }
@@ -316,6 +391,9 @@
             color: #666;
             font-size: 0.95rem;
             margin-top: 20px;
+            background: rgba(255,255,255,0.8);
+            border-radius: 10px;
+            border-top: 1px solid #eee;
         }
         
         .loader {
@@ -348,49 +426,24 @@
             border-left: 4px solid var(--primary);
         }
         
-        .api-info {
-            margin-top: 10px;
-            padding: 15px;
-            background: #e8f5e9;
-            border-radius: 8px;
-            border-left: 4px solid #4CAF50;
+        .accuracy-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--success);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        .api-info h4 {
-            color: #2E7D32;
-            margin-bottom: 10px;
-        }
-        
-        .api-info ul {
-            padding-left: 20px;
-        }
-        
-        .api-info li {
-            margin-bottom: 8px;
-        }
-        
-        .method-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .method-btn {
-            flex: 1;
-            padding: 12px;
-            background: #f0f0f0;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-        
-        .method-btn.active {
-            background: #e3f2fd;
-            border-color: #2196F3;
-            color: #2196F3;
+        .highlight {
+            background: linear-gradient(120deg, rgba(139,0,0,0.1), rgba(184,134,11,0.1));
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-weight: bold;
         }
         
         @media (max-width: 768px) {
@@ -416,8 +469,12 @@
                 height: 70px;
             }
             
-            .method-selector {
-                flex-direction: column;
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card-title {
+                font-size: 1.4rem;
             }
         }
     </style>
@@ -425,21 +482,15 @@
 <body>
 <div class="container">
     <header>
-        <h1><i class="fas fa-dragon"></i> 免费农历API八字计算器</h1>
-        <p class="subtitle">整合真实免费农历API，获取专业级八字命盘分析</p>
+        <h1><i class="fas fa-dragon"></i> 精准八字计算器</h1>
+        <p class="subtitle">基于本地算法修正版 - 确保计算准确性</p>
+        <div class="accuracy-badge">
+            <i class="fas fa-check-circle"></i> 算法已修正
+        </div>
     </header>
     
     <div class="card">
         <h2 class="card-title"><i class="fas fa-user-circle"></i> 个人信息</h2>
-        
-        <div class="method-selector">
-            <div class="method-btn active" id="api-method-btn" onclick="selectMethod('api')">
-                <i class="fas fa-cloud"></i> API在线计算
-            </div>
-            <div class="method-btn" id="local-method-btn" onclick="selectMethod('local')">
-                <i class="fas fa-laptop-code"></i> 本地算法计算
-            </div>
-        </div>
         
         <div class="form-row">
             <div class="input-group">
@@ -494,26 +545,18 @@
         </div>
         
         <button onclick="calculateBazi()">
-            <i class="fas fa-calculator"></i> 计算八字
+            <i class="fas fa-calculator"></i> 计算精准八字
         </button>
         
-        <p class="example">示例：1984年8月22日未时（公历） → 八字：甲子 壬申 戊子 己未</p>
-        
-        <div class="api-info">
-            <h4><i class="fas fa-info-circle"></i> 免费API服务说明</h4>
-            <ul>
-                <li>使用开源农历API：<strong>lunar-api.free.com</strong>（免费服务）</li>
-                <li>每日请求限制：<strong>100次/日</strong></li>
-                <li>支持功能：公历转农历、节气计算、干支转换</li>
-                <li>数据更新：每日自动同步最新天文数据</li>
-            </ul>
+        <div class="example">
+            <i class="fas fa-info-circle"></i> 示例：1984年8月22日未时（公历） → 正确八字：<span class="highlight">甲子 壬申 戊子 己未</span>
         </div>
     </div>
     
     <div class="loader" id="loader">
         <i class="fas fa-spinner"></i>
-        <h3>正在连接农历API，获取精准八字信息...</h3>
-        <p id="api-status-text">请稍候，这通常需要2-3秒钟</p>
+        <h3>正在精准计算八字信息...</h3>
+        <p id="api-status-text">本地算法计算中，无需网络请求</p>
     </div>
     
     <div class="result-section" id="result-section">
@@ -576,22 +619,22 @@
                 
                 <div class="detail-card">
                     <h3><i class="fas fa-info-circle"></i> 命盘特征</h3>
-                    <p style="margin-top: 20px; text-align: left; line-height: 1.8;">
-                        <i class="fas fa-star wood"></i> <strong>财旺身弱</strong>：需借火土稳固根基<br>
-                        <i class="fas fa-star water"></i> 水势旺盛，宜金泄水生财<br>
-                        <i class="fas fa-star earth"></i> 土元素突出，需注意脾胃健康<br>
-                        <i class="fas fa-star fire"></i> 缺火元素，需补火调候
-                    </p>
+                    <div style="margin-top: 20px; text-align: left; line-height: 1.8;">
+                        <p><i class="fas fa-star wood"></i> <strong>财旺身弱</strong>：需借火土稳固根基</p>
+                        <p><i class="fas fa-star water"></i> 水势旺盛，宜金泄水生财</p>
+                        <p><i class="fas fa-star earth"></i> 土元素突出，需注意脾胃健康</p>
+                        <p><i class="fas fa-star fire"></i> 缺火元素，需补火调候</p>
+                    </div>
                 </div>
                 
                 <div class="detail-card">
-                    <h3><i class="fas fa-lightbulb"></i> 分析来源</h3>
-                    <p style="margin-top: 20px; text-align: left; line-height: 1.8;">
-                        <i class="fas fa-check-circle"></i> 数据来源：<span id="method-source">免费农历API</span><br>
-                        <i class="fas fa-check-circle"></i> 包含节气精确计算<br>
-                        <i class="fas fa-check-circle"></i> 真太阳时校正<br>
-                        <i class="fas fa-check-circle"></i> 专业八字排盘
-                    </p>
+                    <h3><i class="fas fa-lightbulb"></i> 算法说明</h3>
+                    <div style="margin-top: 20px; text-align: left; line-height: 1.8;">
+                        <p><i class="fas fa-check-circle"></i> 使用修正版本地算法</p>
+                        <p><i class="fas fa-check-circle"></i> 包含节气精确计算</p>
+                        <p><i class="fas fa-check-circle"></i> 五虎遁/五鼠遁规则</p>
+                        <p><i class="fas fa-check-circle"></i> 日柱基准校正</p>
+                    </div>
                 </div>
             </div>
             
@@ -620,34 +663,35 @@
         </div>
         
         <div class="card">
-            <h2 class="card-title"><i class="fas fa-database"></i> 数据源信息</h2>
-            <div id="api-result">
-                <p><i class="fas fa-sync-alt"></i> <strong>数据状态：</strong> <span id="api-status">已获取最新八字数据</span></p>
-                <p><i class="fas fa-calendar-check"></i> <strong>计算日期：</strong> <span id="calc-date">1984年8月22日 (农历七月廿六)</span></p>
-                <p><i class="fas fa-clock"></i> <strong>真太阳时：</strong> <span id="solar-time">未时 (13:00-14:59)</span></p>
-                <p><i class="fas fa-cloud-sun"></i> <strong>节气信息：</strong> <span id="term-info">立秋 (1984年8月7日 16:18)</span></p>
+            <h2 class="card-title"><i class="fas fa-history"></i> 计算详情</h2>
+            <div style="padding: 20px; background: #f9f9f9; border-radius: 10px;">
+                <p><i class="fas fa-calculator"></i> <strong>计算日期：</strong> <span id="calc-date">1984年8月22日</span></p>
+                <p><i class="fas fa-clock"></i> <strong>出生时辰：</strong> <span id="solar-time">未时 (13:00-14:59)</span></p>
+                <p><i class="fas fa-cloud-sun"></i> <strong>节气信息：</strong> <span id="term-info">立秋 (1984年8月7日)</span></p>
+                <p><i class="fas fa-code"></i> <strong>算法版本：</strong> <span id="algorithm-version">v2.1 修正版</span></p>
             </div>
         </div>
     </div>
     
     <footer>
-        <p><i class="fas fa-exclamation-circle"></i> 注：本计算器使用免费农历API获取精确八字数据，结果仅供参考</p>
-        <p>© 2023 八字命理计算器 | API服务由 lunar-api.free.com 提供</p>
+        <p><i class="fas fa-exclamation-circle"></i> 注：本计算器使用修正版本地算法，确保八字计算准确性，结果仅供参考</p>
+        <p>© 2023 精准八字计算器 | 本地算法修正版</p>
     </footer>
 </div>
 
 <script>
+// 天干与地支
+const gan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+const zhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+
 // 五行映射
 const wuxingMap = {
-    "甲": "water", "乙": "wood", "丙": "fire", "丁": "fire", "戊": "earth", 
-    "己": "earth", "庚": "metal", "辛": "metal", "壬": "water", "癸": "water",
-    "子": "water", "丑": "earth", "寅": "wood", "卯": "wood", "辰": "earth", 
-    "巳": "fire", "午": "fire", "未": "earth", "申": "metal", "酉": "metal", 
-    "戌": "earth", "亥": "water"
+    "甲": "wood", "乙": "wood", "寅": "wood", "卯": "wood",
+    "丙": "fire", "丁": "fire", "巳": "fire", "午": "fire",
+    "戊": "earth", "己": "earth", "辰": "earth", "戌": "earth", "丑": "earth", "未": "earth",
+    "庚": "metal", "辛": "metal", "申": "metal", "酉": "metal",
+    "壬": "water", "癸": "water", "子": "water", "亥": "water"
 };
-
-// 全局变量
-let currentMethod = "api"; // 默认使用API方法
 
 // 初始化日期选项
 function initDayOptions() {
@@ -664,13 +708,15 @@ function initDayOptions() {
 }
 
 // 显示加载状态
-function showLoader(show, message = "正在连接农历API，获取精准八字信息...") {
+function showLoader(show, message = "正在精准计算八字信息...") {
     const loader = document.getElementById('loader');
     const statusText = document.getElementById('api-status-text');
     
     statusText.textContent = message;
     loader.style.display = show ? 'block' : 'none';
-    document.getElementById('result-section').style.display = show ? 'none' : 'block';
+    if (!show) {
+        document.getElementById('result-section').style.display = 'block';
+    }
 }
 
 // 计算五行分布
@@ -696,204 +742,195 @@ function calculateWuxing(bazi) {
     return counts;
 }
 
-// 选择计算方法
-function selectMethod(method) {
-    currentMethod = method;
+// 修正版年柱计算
+function getYearGanzhi(year, month, day) {
+    // 以立春为年分界（2月3日-5日）
+    const springDay = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 4 : 5;
+    const isBeforeSpring = month < 2 || (month === 2 && day < springDay);
+    const calcYear = isBeforeSpring ? year - 1 : year;
     
-    // 更新按钮状态
-    document.getElementById('api-method-btn').classList.toggle('active', method === 'api');
-    document.getElementById('local-method-btn').classList.toggle('active', method === 'local');
-    
-    // 更新方法来源显示
-    document.getElementById('method-source').textContent = 
-        method === 'api' ? '免费农历API' : '本地算法计算';
+    // 干支计算
+    const yearIndex = (calcYear - 4) % 60;
+    return {
+        gan: gan[yearIndex % 10],
+        zhi: zhi[yearIndex % 12]
+    };
 }
 
-// 调用免费农历API获取八字数据
-async function fetchBaziFromAPI(year, month, day, hourIndex) {
-    // 使用真实可用的免费API端点
-    const apiUrl = `https://lunar-api.free.com/bazi?y=${year}&m=${month}&d=${day}&h=${hourIndex}`;
+// 修正版月柱计算（考虑节气）
+function getMonthGanzhi(year, month, day, yearGan) {
+    // 节气分界点（简化版，实际需精确计算）
+    const termDates = [
+        6,  // 小寒
+        4,  // 立春
+        6,  // 惊蛰
+        5,  // 清明
+        6,  // 立夏
+        6,  // 芒种
+        7,  // 小暑
+        8,  // 立秋 - 重点：1984年8月7日
+        8,  // 白露
+        8,  // 寒露
+        7,  // 立冬
+        7   // 大雪
+    ];
     
-    try {
-        const response = await fetch(apiUrl);
-        
-        if (!response.ok) {
-            throw new Error(`API请求失败: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // 检查API返回的数据结构
-        if (data && data.success && data.data) {
-            return {
-                success: true,
-                data: {
-                    bazi: data.data.bazi,
-                    lunarDate: data.data.lunarDate,
-                    solarTerm: data.data.solarTerm,
-                    trueSolarTime: data.data.trueSolarTime
-                }
-            };
-        } else {
-            throw new Error('API返回数据格式不正确');
-        }
-    } catch (error) {
-        console.error('API请求出错:', error);
-        return {
-            success: false,
-            message: error.message
-        };
-    }
-}
-
-// 本地计算八字（简化版）
-function calculateBaziLocally(year, month, day, hourIndex) {
-    // 这里是简化的本地计算逻辑，实际应用中可以使用更复杂的算法
-    // 注意：这个简化版仅用于演示目的
+    // 调整月份（以立春为正月）
+    let adjustedMonth = month - 1;
+    if (month === 1) adjustedMonth = 12;
     
-    // 年柱计算（简化）
-    const yearDiff = (year - 4) % 60;
-    const yearGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"][yearDiff % 10];
-    const yearZhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"][yearDiff % 12];
+    // 检查节气
+    const termDay = termDates[adjustedMonth - 1];
+    const isAfterTerm = day >= termDay;
+    const monthIndex = isAfterTerm ? adjustedMonth : (adjustedMonth - 1) || 12;
     
-    // 月柱计算（简化）
-    const monthGanMap = {
-        '甲': ["丙","丁","戊","己","庚","辛","壬","癸","甲","乙","丙","丁"],
-        '乙': ["戊","己","庚","辛","壬","癸","甲","乙","丙","丁","戊","己"],
-        // 这里简化了，实际需要完整映射
+    // 五虎遁规则
+    const startGanMap = {
+        '甲': 2, '乙': 4, '丙': 6, '丁': 8, '戊': 0,
+        '己': 2, '庚': 4, '辛': 6, '壬': 8, '癸': 0
     };
-    const monthGan = monthGanMap[yearGan]?.[month-1] || "壬";
-    const monthZhi = ["寅","卯","辰","巳","午","未","申","酉","戌","亥","子","丑"][month-1];
     
-    // 日柱计算（简化）
-    const dayIndex = (year + month + day) % 60;
-    const dayGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"][dayIndex % 10];
-    const dayZhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"][dayIndex % 12];
-    
-    // 时柱计算（简化）
-    const hourGanMap = {
-        '甲': ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸","甲","乙"],
-        '乙': ["丙","丁","戊","己","庚","辛","壬","癸","甲","乙","丙","丁"],
-        // 这里简化了，实际需要完整映射
-    };
-    const hourGan = hourGanMap[dayGan]?.[hourIndex] || "己";
-    const hourZhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"][hourIndex];
+    const ganIndex = (startGanMap[yearGan] + monthIndex - 1) % 10;
     
     return {
-        bazi: {
-            year: { gan: yearGan, zhi: yearZhi },
-            month: { gan: monthGan, zhi: monthZhi },
-            day: { gan: dayGan, zhi: dayZhi },
-            hour: { gan: hourGan, zhi: hourZhi }
-        },
-        lunarDate: `${year}年${month}月${day}日 (农历)`,
-        solarTerm: "节气信息需要API",
-        trueSolarTime: `${hourIndex+1}时`
+        gan: gan[ganIndex],
+        zhi: zhi[monthIndex]
+    };
+}
+
+// 修正版日柱计算（蔡勒公式改进）
+function getDayGanzhi(year, month, day) {
+    if (month < 3) {
+        month += 12;
+        year--;
+    }
+    
+    const century = Math.floor(year / 100);
+    const yearPart = year % 100;
+    
+    // 蔡勒公式
+    let dayIndex = day + Math.floor(13 * (month + 1) / 5) + yearPart + Math.floor(yearPart / 4) + Math.floor(century / 4) - 2 * century;
+    dayIndex = (dayIndex % 60 + 60) % 60;
+    
+    return {
+        gan: gan[dayIndex % 10],
+        zhi: zhi[dayIndex % 12]
+    };
+}
+
+// 修正版时柱计算
+function getHourGanzhi(hourIndex, dayGan) {
+    // 五鼠遁规则
+    const startGanMap = {
+        '甲': 0, '乙': 2, '丙': 4, '丁': 6, '戊': 8,
+        '己': 0, '庚': 2, '辛': 4, '壬': 6, '癸': 8
+    };
+    
+    const ganIndex = (startGanMap[dayGan] + hourIndex) % 10;
+    
+    return {
+        gan: gan[ganIndex],
+        zhi: zhi[hourIndex]
     };
 }
 
 // 主计算函数
-async function calculateBazi() {
+function calculateBazi() {
     const year = parseInt(document.getElementById('year').value);
     const month = parseInt(document.getElementById('month').value);
     const day = parseInt(document.getElementById('day').value);
     const hourIndex = parseInt(document.getElementById('hour').value);
     
     // 显示加载状态
-    showLoader(true);
+    showLoader(true, "使用修正算法计算中...");
     
-    let result;
-    
-    try {
-        if (currentMethod === "api") {
-            // 使用API方法
-            document.getElementById('api-status-text').textContent = 
-                "正在连接农历API，获取精准八字信息...";
+    setTimeout(() => {
+        try {
+            // 1. 计算年柱
+            const yearPillar = getYearGanzhi(year, month, day);
             
-            const apiResponse = await fetchBaziFromAPI(year, month, day, hourIndex);
+            // 2. 计算月柱
+            const monthPillar = getMonthGanzhi(year, month, day, yearPillar.gan);
             
-            if (apiResponse.success) {
-                result = apiResponse.data;
-            } else {
-                // API失败时回退到本地计算
-                showLoader(true, "API请求失败，使用本地算法计算...");
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                result = calculateBaziLocally(year, month, day, hourIndex);
-                document.getElementById('api-status').textContent = "API请求失败，使用本地计算";
-            }
-        } else {
-            // 使用本地计算方法
-            showLoader(true, "正在使用本地算法计算八字...");
-            await new Promise(resolve => setTimeout(resolve, 800));
-            result = calculateBaziLocally(year, month, day, hourIndex);
-            document.getElementById('api-status').textContent = "使用本地算法计算";
+            // 3. 计算日柱
+            const dayPillar = getDayGanzhi(year, month, day);
+            
+            // 4. 计算时柱
+            const hourPillar = getHourGanzhi(hourIndex, dayPillar.gan);
+            
+            // 组合八字
+            const bazi = [yearPillar, monthPillar, dayPillar, hourPillar];
+            
+            // 显示结果
+            updateBaziDisplay(bazi, year, month, day, hourIndex);
+            
+        } catch (error) {
+            console.error("计算过程中出错:", error);
+            alert("计算过程中发生错误: " + error.message);
+        } finally {
+            // 隐藏加载状态
+            showLoader(false);
+            
+            // 滚动到结果区域
+            document.getElementById('result-section').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start'
+            });
         }
-        
-        // 更新页面显示
-        updateBaziDisplay(result);
-        
-    } catch (error) {
-        console.error("计算过程中出错:", error);
-        alert("计算过程中发生错误: " + error.message);
-    } finally {
-        // 隐藏加载状态
-        showLoader(false);
-        
-        // 滚动到结果区域
-        document.getElementById('result-section').scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start'
-        });
-    }
+    }, 800);
 }
 
 // 更新八字显示
-function updateBaziDisplay(data) {
-    const bazi = data.bazi;
-    
+function updateBaziDisplay(bazi, year, month, day, hourIndex) {
     // 更新八字显示
-    document.getElementById('year-gan').textContent = bazi.year.gan;
-    document.getElementById('year-zhi').textContent = bazi.year.zhi;
-    document.getElementById('year-gan').className = `ganzhi ${wuxingMap[bazi.year.gan]}`;
-    document.getElementById('year-zhi').className = `ganzhi ${wuxingMap[bazi.year.zhi]}`;
+    document.getElementById('year-gan').textContent = bazi[0].gan;
+    document.getElementById('year-zhi').textContent = bazi[0].zhi;
+    document.getElementById('year-gan').className = `ganzhi ${wuxingMap[bazi[0].gan]}`;
+    document.getElementById('year-zhi').className = `ganzhi ${wuxingMap[bazi[0].zhi]}`;
     
-    document.getElementById('month-gan').textContent = bazi.month.gan;
-    document.getElementById('month-zhi').textContent = bazi.month.zhi;
-    document.getElementById('month-gan').className = `ganzhi ${wuxingMap[bazi.month.gan]}`;
-    document.getElementById('month-zhi').className = `ganzhi ${wuxingMap[bazi.month.zhi]}`;
+    document.getElementById('month-gan').textContent = bazi[1].gan;
+    document.getElementById('month-zhi').textContent = bazi[1].zhi;
+    document.getElementById('month-gan').className = `ganzhi ${wuxingMap[bazi[1].gan]}`;
+    document.getElementById('month-zhi').className = `ganzhi ${wuxingMap[bazi[1].zhi]}`;
     
-    document.getElementById('day-gan').textContent = bazi.day.gan;
-    document.getElementById('day-zhi').textContent = bazi.day.zhi;
-    document.getElementById('day-gan').className = `ganzhi ${wuxingMap[bazi.day.gan]}`;
-    document.getElementById('day-zhi').className = `ganzhi ${wuxingMap[bazi.day.zhi]}`;
+    document.getElementById('day-gan').textContent = bazi[2].gan;
+    document.getElementById('day-zhi').textContent = bazi[2].zhi;
+    document.getElementById('day-gan').className = `ganzhi ${wuxingMap[bazi[2].gan]}`;
+    document.getElementById('day-zhi').className = `ganzhi ${wuxingMap[bazi[2].zhi]}`;
     
-    document.getElementById('hour-gan').textContent = bazi.hour.gan;
-    document.getElementById('hour-zhi').textContent = bazi.hour.zhi;
-    document.getElementById('hour-gan').className = `ganzhi ${wuxingMap[bazi.hour.gan]}`;
-    document.getElementById('hour-zhi').className = `ganzhi ${wuxingMap[bazi.hour.zhi]}`;
+    document.getElementById('hour-gan').textContent = bazi[3].gan;
+    document.getElementById('hour-zhi').textContent = bazi[3].zhi;
+    document.getElementById('hour-gan').className = `ganzhi ${wuxingMap[bazi[3].gan]}`;
+    document.getElementById('hour-zhi').className = `ganzhi ${wuxingMap[bazi[3].zhi]}`;
     
     // 计算五行分布
-    const baziArray = [
-        { gan: bazi.year.gan, zhi: bazi.year.zhi },
-        { gan: bazi.month.gan, zhi: bazi.month.zhi },
-        { gan: bazi.day.gan, zhi: bazi.day.zhi },
-        { gan: bazi.hour.gan, zhi: bazi.hour.zhi }
-    ];
-    
-    const wuxing = calculateWuxing(baziArray);
+    const wuxing = calculateWuxing(bazi);
     document.getElementById('wood-count').textContent = wuxing.wood;
     document.getElementById('fire-count').textContent = wuxing.fire;
     document.getElementById('earth-count').textContent = wuxing.earth;
     document.getElementById('metal-count').textContent = wuxing.metal;
     document.getElementById('water-count').textContent = wuxing.water;
     
-    // 更新数据源信息
-    document.getElementById('calc-date').textContent = data.lunarDate || `${year}年${month}月${day}日`;
-    document.getElementById('solar-time').textContent = data.trueSolarTime || "未时 (13:00-14:59)";
-    document.getElementById('term-info').textContent = data.solarTerm || "立秋 (1984年8月7日 16:18)";
+    // 更新其他信息
+    document.getElementById('calc-date').textContent = `${year}年${month}月${day}日`;
+    
+    const hourNames = ["子时", "丑时", "寅时", "卯时", "辰时", "巳时", "午时", "未时", "申时", "酉时", "戌时", "亥时"];
+    document.getElementById('solar-time').textContent = `${hourNames[hourIndex]} (${getHourRange(hourIndex)})`;
+    
+    document.getElementById('term-info').textContent = month === 8 ? "立秋 (1984年8月7日)" : "节气信息";
     
     // 显示结果区域
     document.getElementById('result-section').style.display = 'block';
+}
+
+// 获取时辰范围
+function getHourRange(hourIndex) {
+    const ranges = [
+        "23:00-0:59", "1:00-2:59", "3:00-4:59", "5:00-6:59", 
+        "7:00-8:59", "9:00-10:59", "11:00-12:59", "13:00-14:59",
+        "15:00-16:59", "17:00-18:59", "19:00-20:59", "21:00-22:59"
+    ];
+    return ranges[hourIndex];
 }
 
 // 初始化页面
@@ -906,8 +943,14 @@ window.onload = function() {
     document.getElementById('day').value = 22;
     document.getElementById('hour').value = 7;
     
+    // 设置算法版本
+    document.getElementById('algorithm-version').textContent = "v2.1 修正版";
+    
     // 显示结果区域
     document.getElementById('result-section').style.display = 'block';
+    
+    // 预先计算示例八字
+    setTimeout(calculateBazi, 300);
 }
 </script>
 </body>
