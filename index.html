@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>精准八字计算器 - 优化版</title>
+    <title>八字命盘计算器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary: #8b0000;
-            --primary-light: #b22222;
-            --secondary: #b8860b;
-            --wood: #4CAF50;
-            --fire: #F44336;
-            --earth: #795548;
-            --metal: #9E9E9E;
-            --water: #2196F3;
-            --light-bg: #faf5e4;
-            --card-bg: #ffffff;
-            --shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-            --success: #4CAF50;
-            --warning: #FFC107;
+            --primary: #9A8C98;     /* 莫兰迪紫灰 */
+            --primary-light: #C9ADA7; /* 莫兰迪粉灰 */
+            --secondary: #F2E9E4;   /* 莫兰迪米白 */
+            --wood: #B7B7A4;        /* 莫兰迪灰绿 */
+            --fire: #E9B59F;        /* 莫兰迪橘粉 */
+            --earth: #DDBEA9;       /* 莫兰迪浅棕 */
+            --metal: #A5A58D;       /* 莫兰迪橄榄绿 */
+            --water: #A5B4C0;       /* 莫兰迪灰蓝 */
+            --light-bg: #F8F4EF;    /* 奶油米白 */
+            --card-bg: #FFFFFF;     /* 纯白 */
+            --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            --success: #B7B7A4;
+            --text: #4A4A4A;
         }
         
         * {
@@ -30,12 +30,12 @@
         }
         
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-            color: #333;
+            background-color: var(--light-bg);
+            color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
             padding: 20px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23faf5e4" opacity="0.2"/><path d="M20,20 Q40,5 60,20 T100,20 M20,40 Q40,25 60,40 T100,40 M20,60 Q40,45 60,60 T100,60 M20,80 Q40,65 60,80 T100,80" stroke="%238b0000" stroke-width="0.5" fill="none"/></svg>');
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23F8F4EF" opacity="0.2"/><path d="M20,20 Q40,5 60,20 T100,20 M20,40 Q40,25 60,40 T100,40 M20,60 Q40,45 60,60 T100,60 M20,80 Q40,65 60,80 T100,80" stroke="%239A8C98" stroke-width="0.5" fill="none" opacity="0.3"/></svg>');
         }
         
         .container {
@@ -53,7 +53,7 @@
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
         
         header::before {
@@ -68,21 +68,22 @@
         }
         
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.3rem;
             margin-bottom: 10px;
             position: relative;
             z-index: 2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             letter-spacing: 1px;
+            font-weight: 400;
         }
         
         .subtitle {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             opacity: 0.9;
             max-width: 700px;
             margin: 0 auto;
             position: relative;
             z-index: 2;
+            font-weight: 300;
         }
         
         .card {
@@ -92,28 +93,30 @@
             padding: 30px;
             margin-bottom: 25px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.03);
         }
         
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
         }
         
         .card-title {
             color: var(--primary);
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+            border-bottom: 1px solid var(--secondary);
             display: flex;
             align-items: center;
-            font-size: 1.6rem;
+            font-size: 1.4rem;
+            font-weight: 400;
+            letter-spacing: 1px;
         }
         
         .card-title i {
             margin-right: 10px;
-            font-size: 1.8rem;
-            color: var(--secondary);
+            font-size: 1.5rem;
+            color: var(--primary-light);
         }
         
         .form-row {
@@ -132,26 +135,27 @@
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 1rem;
         }
         
         input, select {
             width: 100%;
             padding: 14px 18px;
-            border: 1px solid #ddd;
+            border: 1px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
-            background: #fafafa;
+            background: #fcfcfc;
             transition: all 0.3s ease;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            color: var(--text);
         }
         
         input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.2);
+            box-shadow: 0 0 0 3px rgba(154, 140, 152, 0.2);
             background: #fff;
         }
         
@@ -159,17 +163,17 @@
             display: block;
             width: 100%;
             padding: 16px;
-            background: linear-gradient(to right, var(--secondary), #daa520);
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
+            font-size: 17px;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 20px;
             letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -187,9 +191,9 @@
         }
         
         button:hover {
-            background: linear-gradient(to right, #daa520, var(--secondary));
+            background: linear-gradient(to right, var(--primary-light), var(--primary));
             transform: translateY(-3px);
-            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
         }
         
         button:hover::before {
@@ -207,13 +211,12 @@
         .example {
             text-align: center;
             margin-top: 15px;
-            color: #666;
-            font-size: 0.95rem;
+            color: #777;
+            font-size: 0.92rem;
             font-style: italic;
             padding: 10px;
-            background: #fff9e6;
+            background: var(--secondary);
             border-radius: 8px;
-            border-left: 3px solid var(--secondary);
         }
         
         .bazi-display {
@@ -231,8 +234,8 @@
             border-radius: 12px;
             padding: 25px 20px;
             text-align: center;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.03);
             transition: transform 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -245,7 +248,7 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
         }
         
         .pillar:hover {
@@ -253,8 +256,8 @@
         }
         
         .pillar-name {
-            font-size: 1.3rem;
-            font-weight: bold;
+            font-size: 1.2rem;
+            font-weight: 500;
             margin-bottom: 20px;
             color: var(--primary);
             display: flex;
@@ -264,16 +267,16 @@
         
         .pillar-name i {
             margin-right: 8px;
-            font-size: 1.2rem;
-            color: var(--secondary);
+            font-size: 1.1rem;
+            color: var(--primary-light);
         }
         
         .pillar-content {
             display: flex;
             justify-content: center;
             gap: 25px;
-            font-size: 2.8rem;
-            font-weight: bold;
+            font-size: 2.6rem;
+            font-weight: 400;
             min-height: 80px;
         }
         
@@ -281,14 +284,15 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 80px;
-            height: 80px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
             position: relative;
             z-index: 1;
             transition: all 0.3s;
+            font-weight: 500;
         }
         
         .ganzhi::after {
@@ -300,7 +304,7 @@
             background: inherit;
             z-index: -1;
             filter: blur(5px);
-            opacity: 0.4;
+            opacity: 0.3;
         }
         
         .wood { background-color: var(--wood); color: white; }
@@ -317,18 +321,18 @@
         }
         
         .detail-card {
-            background: #f9f9f9;
+            background: var(--secondary);
             border-radius: 12px;
             padding: 20px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0,0,0,0.03);
             transition: all 0.3s;
         }
         
         .detail-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.08);
         }
         
         .detail-card h3 {
@@ -337,42 +341,30 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            font-weight: 500;
         }
         
         .detail-card h3 i {
             margin-right: 8px;
-            color: var(--secondary);
+            color: var(--primary-light);
         }
         
         .wuxing-count {
-            font-size: 2.5rem;
-            font-weight: bold;
+            font-size: 2.2rem;
+            font-weight: 400;
             margin: 15px 0;
-            text-shadow: 0 2px 3px rgba(0,0,0,0.1);
         }
         
-        /* 恢复五行分布的颜色 */
-        .wuxing-count .wood { 
-    color: white; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-}
-.wuxing-count .fire { 
-    color: white; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-}
-.wuxing-count .earth { 
-    color: white; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-}
-.wuxing-count .metal { 
-    color: white; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-}
-.wuxing-count .water { 
-    color: white; 
-    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-}
+        .wuxing-count .wood,
+        .wuxing-count .fire,
+        .wuxing-count .earth,
+        .wuxing-count .metal,
+        .wuxing-count .water {
+            color: var(--text);
+            display: block;
+            font-weight: 500;
+        }
         
         .wuxing-legend {
             display: flex;
@@ -391,14 +383,13 @@
             padding: 8px 15px;
             border-radius: 30px;
             background: rgba(0,0,0,0.03);
-            font-weight: 500;
+            font-weight: 400;
         }
         
         .legend-color {
-            width: 25px;
-            height: 25px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
         .wood-bg { background-color: var(--wood); }
@@ -409,13 +400,10 @@
         
         footer {
             text-align: center;
-            padding: 30px 20px;
-            color: #666;
-            font-size: 0.95rem;
-            margin-top: 20px;
-            background: rgba(255,255,255,0.8);
-            border-radius: 10px;
-            border-top: 1px solid #eee;
+            padding: 30px 20px 20px;
+            color: #777;
+            font-size: 0.9rem;
+            margin-top: 10px;
         }
         
         .loader {
@@ -425,8 +413,8 @@
         }
         
         .loader i {
-            font-size: 3rem;
-            color: var(--secondary);
+            font-size: 2.8rem;
+            color: var(--primary);
             margin-bottom: 15px;
             animation: spin 1.5s linear infinite;
         }
@@ -440,74 +428,24 @@
             display: none;
         }
         
-        .accuracy-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--success);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .highlight {
-            background: linear-gradient(120deg, rgba(139,0,0,0.1), rgba(184,134,11,0.1));
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        
-        .algorithm-details {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 20px;
-            border-left: 4px solid var(--primary);
-        }
-        
-        .algorithm-details h4 {
-            margin-bottom: 15px;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-        }
-        
-        .algorithm-details h4 i {
-            margin-right: 10px;
-        }
-        
-        .algorithm-details ul {
-            padding-left: 20px;
+        .character-content {
+            margin-top: 20px; 
+            text-align: left; 
             line-height: 1.8;
         }
         
-        .algorithm-details li {
-            margin-bottom: 10px;
-        }
-        
-        .success {
-            color: var(--success);
-        }
-        
-        .warning {
-            color: var(--warning);
-        }
-        
-        /* 命盘特征样式 */
         .character-item {
             margin-bottom: 12px;
             padding-left: 25px;
             position: relative;
+            font-size: 0.95rem;
         }
         
         .character-item i {
             position: absolute;
             left: 0;
             top: 5px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         
         .wood-text { color: var(--wood); }
@@ -515,6 +453,25 @@
         .earth-text { color: var(--earth); }
         .metal-text { color: var(--metal); }
         .water-text { color: var(--water); }
+        
+        .calc-info {
+            padding: 20px;
+            background: var(--secondary);
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .calc-info p {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .calc-info i {
+            margin-right: 10px;
+            color: var(--primary);
+            min-width: 20px;
+        }
         
         @media (max-width: 768px) {
             .bazi-display {
@@ -535,8 +492,8 @@
             }
             
             .ganzhi {
-                width: 70px;
-                height: 70px;
+                width: 65px;
+                height: 65px;
             }
             
             h1 {
@@ -544,7 +501,11 @@
             }
             
             .card-title {
-                font-size: 1.4rem;
+                font-size: 1.3rem;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -552,11 +513,8 @@
 <body>
 <div class="container">
     <header>
-        <h1><i class="fas fa-dragon"></i> 精准八字计算器</h1>
-        <p class="subtitle">优化版 </p>
-        <div class="accuracy-badge">
-            <i class="fas fa-palette"></i> 
-        </div>
+        <h1><i class="fas fa-dragon"></i> 八字命盘计算器</h1>
+        <p class="subtitle">探索您的命理奥秘，了解五行平衡</p>
     </header>
     
     <div class="card">
@@ -615,27 +573,17 @@
         </div>
         
         <button onclick="calculateBazi()">
-            <i class="fas fa-calculator"></i> 计算精准八字
+            <i class="fas fa-calculator"></i> 计算我的八字
         </button>
         
         <div class="example">
-            <i class="fas fa-info-circle"></i> 示例：1984年8月22日未时（公历） → 正确八字：<span class="highlight">甲子 壬申 戊子 己未</span>
-        </div>
-        
-        <div class="algorithm-details">
-            <h4><i class="fas fa-paint-brush"></i> 色彩优化说明</h4>
-            <ul>
-                <li><i class="fas fa-check-circle success"></i> 恢复原始五行分布色彩设计</li>
-                <li><i class="fas fa-check-circle success"></i> 优化命盘特征项的色彩展示</li>
-                <li><i class="fas fa-check-circle success"></i> 增强整体视觉效果</li>
-            </ul>
+            <i class="fas fa-info-circle"></i> 示例：1984年8月22日未时（公历） → 八字：甲子 壬申 戊子 己未
         </div>
     </div>
     
     <div class="loader" id="loader">
         <i class="fas fa-spinner"></i>
-        <h3>正在精准计算八字信息...</h3>
-        <p id="api-status-text">使用优化算法</p>
+        <h3>正在计算您的八字信息...</h3>
     </div>
     
     <div class="result-section" id="result-section">
@@ -698,8 +646,7 @@
                 
                 <div class="detail-card">
                     <h3><i class="fas fa-info-circle"></i> 命盘特征</h3>
-                    <div id="character-content" style="margin-top: 20px; text-align: left; line-height: 1.8;">
-                        <!-- 特征内容将动态生成 -->
+                    <div id="character-content" class="character-content">
                         <div class="character-item">
                             <i class="fas fa-star wood-text"></i>
                             <strong class="wood-text">财旺身弱</strong>：需借火土稳固根基
@@ -720,54 +667,45 @@
                 </div>
                 
                 <div class="detail-card">
-                    <h3><i class="fas fa-lightbulb"></i> 算法说明</h3>
-                    <div style="margin-top: 20px; text-align: left; line-height: 1.8;">
-                        <p><i class="fas fa-check-circle success"></i> 年柱：立春分界法</p>
-                        <p><i class="fas fa-check-circle success"></i> 月柱：节气精确计算</p>
-                        <p><i class="fas fa-check-circle success"></i> 日柱：蔡勒公式改进</p>
-                        <p><i class="fas fa-check-circle success"></i> 时柱：五鼠遁修正</p>
+                    <h3><i class="fas fa-balance-scale"></i> 五行图例</h3>
+                    <div class="wuxing-legend">
+                        <div class="legend-item">
+                            <div class="legend-color wood-bg"></div>
+                            <span>木</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color fire-bg"></div>
+                            <span>火</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color earth-bg"></div>
+                            <span>土</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color metal-bg"></div>
+                            <span>金</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color water-bg"></div>
+                            <span>水</span>
+                        </div>
                     </div>
-                </div>
-            </div>
-            
-            <div class="wuxing-legend">
-                <div class="legend-item">
-                    <div class="legend-color wood-bg"></div>
-                    <span>木</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color fire-bg"></div>
-                    <span>火</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color earth-bg"></div>
-                    <span>土</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color metal-bg"></div>
-                    <span>金</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color water-bg"></div>
-                    <span>水</span>
                 </div>
             </div>
         </div>
         
         <div class="card">
             <h2 class="card-title"><i class="fas fa-history"></i> 计算详情</h2>
-            <div style="padding: 20px; background: #f9f9f9; border-radius: 10px;">
+            <div class="calc-info">
                 <p><i class="fas fa-calculator"></i> <strong>计算日期：</strong> <span id="calc-date">1984年8月22日</span></p>
                 <p><i class="fas fa-clock"></i> <strong>出生时辰：</strong> <span id="solar-time">未时 (13:00-14:59)</span></p>
                 <p><i class="fas fa-cloud-sun"></i> <strong>节气信息：</strong> <span id="term-info">立秋 (1984年8月7日)</span></p>
-                <p><i class="fas fa-code"></i> <strong>算法版本：</strong> <span id="algorithm-version">v6.0 色彩优化版</span></p>
             </div>
         </div>
     </div>
     
     <footer>
-        <p><i class="fas fa-exclamation-circle"></i> 注：本计算器使用精确算法，结果仅供参考</p>
-        <p>© 2023 精准八字计算器 | 色彩优化版</p>
+        <p>© 2023 八字命盘计算器 | 探索命理奥秘，了解自我</p>
     </footer>
 </div>
 
@@ -808,7 +746,6 @@ function showLoader(show, message = "正在精准计算八字信息...") {
     const loader = document.getElementById('loader');
     const statusText = document.getElementById('api-status-text');
     
-    statusText.textContent = message;
     loader.style.display = show ? 'block' : 'none';
     if (!show) {
         document.getElementById('result-section').style.display = 'block';
@@ -1074,8 +1011,8 @@ function generateCharacterContent(wuxing) {
         if (balanced) {
             content.push(`
                 <div class="character-item">
-                    <i class="fas fa-balance-scale success"></i>
-                    <strong class="success">五行相对平衡</strong>：整体运势较为平稳
+                    <i class="fas fa-balance-scale"></i>
+                    <strong>五行相对平衡</strong>：整体运势较为平稳
                 </div>
             `);
         }
@@ -1092,7 +1029,7 @@ function calculateBazi() {
     const hourIndex = parseInt(document.getElementById('hour').value);
     
     // 显示加载状态
-    showLoader(true, "使用色彩优化算法计算中...");
+    showLoader(true);
     
     setTimeout(() => {
         try {
@@ -1197,9 +1134,6 @@ window.onload = function() {
     document.getElementById('month').value = 8;
     document.getElementById('day').value = 22;
     document.getElementById('hour').value = 7;
-    
-    // 设置算法版本
-    document.getElementById('algorithm-version').textContent = "v6.0 色彩优化版";
     
     // 显示结果区域
     document.getElementById('result-section').style.display = 'block';
