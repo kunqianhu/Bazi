@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>精准八字计算器 - 色彩优化版</title>
+    <title>精准八字计算器 - 优化版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -353,11 +353,26 @@
         }
         
         /* 恢复五行分布的颜色 */
-        .wuxing-count .wood { color: var(--wood); }
-        .wuxing-count .fire { color: var(--fire); }
-        .wuxing-count .earth { color: var(--earth); }
-        .wuxing-count .metal { color: var(--metal); }
-        .wuxing-count .water { color: var(--water); }
+        .wuxing-count .wood { 
+    color: white; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
+.wuxing-count .fire { 
+    color: white; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
+.wuxing-count .earth { 
+    color: white; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
+.wuxing-count .metal { 
+    color: white; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
+.wuxing-count .water { 
+    color: white; 
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
         
         .wuxing-legend {
             display: flex;
@@ -538,9 +553,9 @@
 <div class="container">
     <header>
         <h1><i class="fas fa-dragon"></i> 精准八字计算器</h1>
-        <p class="subtitle">色彩优化版 - 保留原始设计风格</p>
+        <p class="subtitle">优化版 </p>
         <div class="accuracy-badge">
-            <i class="fas fa-palette"></i> 色彩恢复
+            <i class="fas fa-palette"></i> 
         </div>
     </header>
     
@@ -620,7 +635,7 @@
     <div class="loader" id="loader">
         <i class="fas fa-spinner"></i>
         <h3>正在精准计算八字信息...</h3>
-        <p id="api-status-text">使用色彩优化算法</p>
+        <p id="api-status-text">使用优化算法</p>
     </div>
     
     <div class="result-section" id="result-section">
