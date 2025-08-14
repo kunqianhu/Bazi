@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生辰八字计算器</title>
+<style>
+    body { font-family: "STKaiti", "KaiTi", serif; background-color: #faf5e4; padding: 20px; color: #333; }
+    h1 { text-align: center; color: #8b0000; }
+    .input-section { background: #fffaf0; border: 1px solid #ddd; padding: 15px; border-radius: 8px; max-width: 400px; margin: auto; }
+    label { display: block; margin-top: 10px; }
+    select, input { width: 100%; padding: 5px; margin-top: 5px; }
+    button { width: 100%; margin-top: 15px; padding: 10px; background: #b8860b; color: white; border: none; font-size: 16px; cursor: pointer; border-radius: 5px; }
+    button:hover { background: #daa520; }
+    .result { margin-top: 20px; text-align: center; }
+    table { margin: auto; border-collapse: collapse; margin-top: 10px; }
+    table, th, td { border: 1px solid #999; padding: 8px 12px; }
+    .wood { color: green; }
+    .fire { color: red; }
+    .earth { color: #b8860b; }
+    .metal { color: gray; }
+    .water { color: blue; }
+    .note { margin-top: 10px; font-size: 14px; text-align: center; }
+</style>
+<script>
+// 天干与地支
+const gan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+const zhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+// 五行颜色映射
+const wuxingColor = {
+    "甲":"wood","乙":"wood","寅":"wood","卯":"wood",
+    "丙":"fire","丁":"fire","巳":"fire","午":"fire",
+    "戊":"earth","己":"earth","辰":"earth","戌":"earth","丑":"earth","未":"earth",
+    "庚":"metal","辛":"metal","申":"metal","酉":"metal",
+    "壬":"water","癸":"water","子":"water","亥":"water"
+};
+// 节气表（示例，仅含立春；完整需补齐24节气）
+// 这里只做演示，1900-2100年的节气可查表导入
+const liChunDates = {
+    1984: {month:2, day:4},
+    1985: {month:2, day:4},
+    2024: {month:2, day:4}
+};
+
+// 计算干支序号（0-59）
+function getGanZhiIndex(year, month, day) {
+    let baseDate = new Date(1984, 1, 2); // 1984-02-02 干支甲子日
+    let targetDate = new Date(year, month-1, day);
+    let diffDays = Math.floor((targetDate - baseDate) / (24*60*60*1000));
+    return (diffDays % 60 + 60) % 60;
+}
+
+// 公历 → 四柱
+function calcBazi(y, m, d, h) {
+    // 年柱
+    let lichun = liChunDates[y] || {month:2, day:4};
+    let useYear = (m > lichun.month || (m === lichun.month && d >= lichun.day)) ? y : y - 1;
+    let yearIndex = (useYear - 1984 + 60) % 60;
+    let yearGan = gan[yearIndex % 10];
+    let yearZhi = zhi[yearIndex % 12];
+
+    // 月柱（简化版，以立春为起点）
+    let monthIndex = ((yearIndex % 5) * 12 + m + 1) % 60; // 简化
+    let monthGan = gan[(yearIndex*2 + m) % 10];
+    let monthZhi = zhi[(m+1) % 12];
+
+    // 日柱
+    let dayIndex = getGanZhiIndex(y, m, d);
+    let dayGan = gan[dayIndex % 10];
+    let dayZhi = zhi[dayIndex % 12];
+
+    // 时柱
+    let hourZhiIndex = Math.floor((h + 1) / 2) % 12;
+    let hourZhi = zhi[hourZhiIndex];
+    let hourGan = gan[(dayIndex*2 + hourZhiIndex) % 10];
+
+    return [
+        [yearGan, yearZhi],
+        [monthGan, monthZhi],
+        [dayGan, dayZhi],
+        [hourGan, hourZhi]
+    ];
+}
+
+function showBazi() {
+    let y = parseInt(document.getElementById("year").value);
+    let m = parseInt(document.getElementById("month").value);
+    let d = parseInt(document.getElementById("day").value);
+    let h = parseInt(document.getElementById("hour").value);
+
+    let bazi = calcBazi(y, m, d, h);
+    let html = "<tr>";
+    bazi.forEach(pillar => {
+        pillar.forEach(char => {
+            html += `<td class="${wuxingColor[char] || ''}">${char}</td>`;
+        });
+    });
+    html += "</tr>";
+    document.getElementById("result-table").innerHTML = html;
+    document.getElementById("result-section").style.display = "block";
+}
+</script>
+</head>
+<body>
+
+<h1>请输入您的生辰</h1>
+<div class="input-section">
+    <label>年：</label>
+    <input type="number" id="year" placeholder="例如：1984" value="1984">
+    <label>月：</label>
+    <select id="month">
+        ${[...Array(12)].map((_,i)=>`<option value="${i+1}">${i+1}</option>`).join("")}
+    </select>
+    <label>日：</label>
+    <select id="day">
+        ${[...Array(31)].map((_,i)=>`<option value="${i+1}">${i+1}</option>`).join("")}
+    </select>
+    <label>时（24小时制）：</label>
+    <select id="hour">
+        ${[...Array(24)].map((_,i)=>`<option value="${i}">${i}</option>`).join("")}
+    </select>
+    <button onclick="showBazi()">生成八字</button>
+</div>
+
+<div id="result-section" class="result" style="display:none;">
+    <h3>四柱八字</h3>
+    <table>
+        <tr>
+            <th>年干</th><th>年支</th>
+            <th>月干</th><th>月支</th>
+            <th>日干</th><th>日支</th>
+            <th>时干</th><th>时支</th>
+        </tr>
+        <tbody id="result-table"></tbody>
+    </table>
+    <div class="note">
+        颜色注解：
+        <span class="wood">绿色=木</span>，
+        <span class="fire">红色=火</span>，
+        <span class="earth">棕黄色=土</span>，
+        <span class="metal">灰色=金</span>，
+        <span class="water">蓝色=水</span>
+    </div>
+</div>
+
+</body>
+</html>
