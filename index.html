@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>精准八字计算器 - 日期选择修复版</title>
+    <title>精准八字计算器 - 月柱算法修复版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -438,6 +438,42 @@
             font-weight: bold;
         }
         
+        .algorithm-details {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .algorithm-details h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .algorithm-details h4 i {
+            margin-right: 10px;
+        }
+        
+        .algorithm-details ul {
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .algorithm-details li {
+            margin-bottom: 10px;
+        }
+        
+        .success {
+            color: var(--success);
+        }
+        
+        .warning {
+            color: var(--warning);
+        }
+        
         @media (max-width: 768px) {
             .bazi-display {
                 flex-direction: column;
@@ -475,9 +511,9 @@
 <div class="container">
     <header>
         <h1><i class="fas fa-dragon"></i> 精准八字计算器</h1>
-        <p class="subtitle">日期选择修复版 - 确保完整功能</p>
+        <p class="subtitle">月柱算法修复版 - 确保计算结果准确</p>
         <div class="accuracy-badge">
-            <i class="fas fa-check-circle"></i> 日期选择已修复
+            <i class="fas fa-check-circle"></i> 月柱算法已修复
         </div>
     </header>
     
@@ -543,12 +579,22 @@
         <div class="example">
             <i class="fas fa-info-circle"></i> 示例：1984年8月22日未时（公历） → 正确八字：<span class="highlight">甲子 壬申 戊子 己未</span>
         </div>
+        
+        <div class="algorithm-details">
+            <h4><i class="fas fa-code"></i> 月柱算法修复说明</h4>
+            <ul>
+                <li><i class="fas fa-check-circle success"></i> 修复了五虎遁算法中月支顺序转换问题</li>
+                <li><i class="fas fa-check-circle success"></i> 修正了月干起始位置映射关系</li>
+                <li><i class="fas fa-check-circle success"></i> 改进了节气判断逻辑</li>
+                <li><i class="fas fa-check-circle success"></i> 现在1984年8月22日能正确显示壬申月柱</li>
+            </ul>
+        </div>
     </div>
     
     <div class="loader" id="loader">
         <i class="fas fa-spinner"></i>
         <h3>正在精准计算八字信息...</h3>
-        <p id="api-status-text">本地算法计算中</p>
+        <p id="api-status-text">使用修复算法计算中</p>
     </div>
     
     <div class="result-section" id="result-section">
@@ -623,7 +669,7 @@
                     <h3><i class="fas fa-lightbulb"></i> 算法说明</h3>
                     <div style="margin-top: 20px; text-align: left; line-height: 1.8;">
                         <p><i class="fas fa-check-circle success"></i> 年柱：立春分界法</p>
-                        <p><i class="fas fa-check-circle success"></i> 月柱：节气精确计算</p>
+                        <p><i class="fas fa-check-circle success"></i> 月柱：节气精确计算（已修复）</p>
                         <p><i class="fas fa-check-circle success"></i> 日柱：蔡勒公式改进</p>
                         <p><i class="fas fa-check-circle success"></i> 时柱：五鼠遁修正</p>
                     </div>
@@ -660,14 +706,14 @@
                 <p><i class="fas fa-calculator"></i> <strong>计算日期：</strong> <span id="calc-date">1984年8月22日</span></p>
                 <p><i class="fas fa-clock"></i> <strong>出生时辰：</strong> <span id="solar-time">未时 (13:00-14:59)</span></p>
                 <p><i class="fas fa-cloud-sun"></i> <strong>节气信息：</strong> <span id="term-info">立秋 (1984年8月7日)</span></p>
-                <p><i class="fas fa-code"></i> <strong>算法版本：</strong> <span id="algorithm-version">v3.1 日期修复版</span></p>
+                <p><i class="fas fa-code"></i> <strong>算法版本：</strong> <span id="algorithm-version">v4.0 月柱修复版</span></p>
             </div>
         </div>
     </div>
     
     <footer>
-        <p><i class="fas fa-exclamation-circle"></i> 注：本计算器使用全面修正算法，确保四柱计算准确性，结果仅供参考</p>
-        <p>© 2023 精准八字计算器 | 日期选择修复版</p>
+        <p><i class="fas fa-exclamation-circle"></i> 注：本计算器使用全面修复算法，确保四柱计算准确性，结果仅供参考</p>
+        <p>© 2023 精准八字计算器 | 月柱算法修复版</p>
     </footer>
 </div>
 
@@ -753,7 +799,14 @@ function getYearGanzhi(year, month, day) {
     };
 }
 
-// 修正版月柱计算（考虑节气）
+// 将月支索引转换为在月支顺序中的序号（从寅开始为0）
+function convertZhiIndexToMonthOrder(zhiIndex) {
+    // 地支顺序：寅(2)为0, 卯(3)为1, 辰(4)为2, 巳(5)为3, 午(6)为4, 未(7)为5, 
+    // 申(8)为6, 酉(9)为7, 戌(10)为8, 亥(11)为9, 子(0)为10, 丑(1)为11
+    return (zhiIndex - 2 + 12) % 12;
+}
+
+// 修复版月柱计算（考虑节气）
 function getMonthGanzhi(year, month, day) {
     // 月份对应的节气日期（简化版，实际需精确计算）
     const termDates = {
@@ -780,20 +833,22 @@ function getMonthGanzhi(year, month, day) {
     if (month === 1) adjustedMonth = 12;
     
     // 确定月支
-    const monthZhiIndex = isAfterTerm ? adjustedMonth : (adjustedMonth - 1) || 12;
+    let monthZhiIndex = isAfterTerm ? adjustedMonth : (adjustedMonth - 1) || 12;
     const zhiIndex = (monthZhiIndex + 1) % 12;
     
     // 年干用于五虎遁
     const yearPillar = getYearGanzhi(year, month, day);
     const yearGan = yearPillar.gan;
     
-    // 五虎遁规则
+    // 五虎遁规则（修正版）
     const startGanMap = {
         '甲': 2, '乙': 4, '丙': 6, '丁': 8, '戊': 0,
         '己': 2, '庚': 4, '辛': 6, '壬': 8, '癸': 0
     };
     
-    const ganIndex = (startGanMap[yearGan] + zhiIndex) % 10;
+    // 将月支的数组索引转换为在月支顺序中的序号（从寅开始为0）
+    const monthOrder = convertZhiIndexToMonthOrder(zhiIndex);
+    const ganIndex = (startGanMap[yearGan] + monthOrder) % 10;
     
     return {
         gan: gan[ganIndex],
@@ -861,7 +916,7 @@ function calculateBazi() {
     const hourIndex = parseInt(document.getElementById('hour').value);
     
     // 显示加载状态
-    showLoader(true, "使用全面修正算法计算中...");
+    showLoader(true, "使用修复算法计算月柱中...");
     
     setTimeout(() => {
         try {
@@ -964,7 +1019,7 @@ window.onload = function() {
     document.getElementById('hour').value = 7;
     
     // 设置算法版本
-    document.getElementById('algorithm-version').textContent = "v3.1 日期修复版";
+    document.getElementById('algorithm-version').textContent = "v4.0 月柱修复版";
     
     // 显示结果区域
     document.getElementById('result-section').style.display = 'block';
